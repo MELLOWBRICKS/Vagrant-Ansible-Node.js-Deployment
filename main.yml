@@ -1,0 +1,51 @@
+---
+- name: Deploy Node.js app on Vagrant (apt only)
+  hosts: vagrant
+  become: yes
+  vars:
+    node_version: "16.x"
+    app_repo: "https://github.com/priyabuss2004/node-app.git"
+    app_dest: "/home/vagrant/node-app"
+
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - curl
+          - git
+        state: present
+
+    - name: Add Nodesource Node.js repository
+      ansible.builtin.shell: |
+        curl -fsSL https://deb.nodesource.com/setup_{{ node_version }} | bash -
+      args:
+        executable: /bin/bash
+
+    - name: Install Node.js and npm
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Clone node app repo
+      git:
+        repo: "{{ app_repo }}"
+        dest: "{{ app_dest }}"
+        update: yes
+        version: main
+        accept_hostkey: yes
+
+    - name: Install npm dependencies
+      npm:
+        path: "{{ app_dest }}"
+        production: no
+
+    - name: Start Node.js application in background
+      ansible.builtin.shell: |
+        nohup npm start > app.log 2>&1 &
+      args:
+        chdir: "{{ app_dest }}"
+
