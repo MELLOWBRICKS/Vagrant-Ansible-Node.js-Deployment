@@ -1,0 +1,15 @@
+# Vagrant
+.vagrant/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js (if running locally)
+node_modules/
+npm-debug.log*
